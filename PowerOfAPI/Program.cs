@@ -1,13 +1,23 @@
 ﻿
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using PowerOf.Application.IServices;
+using PowerOf.Application.Mapping;
+using PowerOf.Application.Services;
 using PowerOf.Core.Entities;
+using PowerOf.Core.Enums;
 using PowerOf.Core.IRepository;
 using PowerOf.Core.IUnitOfWork;
 using PowerOf.Persistence.Data;
 using PowerOf.Persistence.Repository;
 using PowerOf.Persistence.UnitOfWork;
+using System.ComponentModel;
+using System.Text;
 
 namespace PowerOfAPI
 {
@@ -23,8 +33,25 @@ namespace PowerOfAPI
                            .AddEntityFrameworkStores<ApplicationDbContext>()
                            .AddDefaultTokenProviders();
 
-            builder.Services.AddScoped<IGenericRepository<Product>, ProductRepository>();
+            var smtpSettings = builder.Configuration.GetSection("SMTP");
+            builder.Services.AddSingleton<IEmailService>(new EmailService(
+                smtpSettings["Server"],
+                int.Parse(smtpSettings["Port"]),
+                smtpSettings["User"],
+                smtpSettings["Password"]
+            ));
+
+
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<AuthService>();    
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IImageService,ImageService>();
+            builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();    
+
+
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
             builder.Services.AddCors(corsOptions =>
@@ -35,6 +62,38 @@ namespace PowerOfAPI
                       .AllowAnyMethod()
                       .AllowAnyHeader();
                 });
+            });
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy(Roles.Admin.ToString(), policy => policy.RequireRole(Roles.Admin.ToString()));
+                options.AddPolicy(Roles.Client.ToString(), policy => policy.RequireRole(Roles.Client.ToString()));
+                options.AddPolicy(Roles.Employee.ToString(), policy => policy.RequireRole(Roles.Employee.ToString()));
+            });
+
+
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options => {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+                };
+            })
+            .AddGoogle(googleOptions =>
+            {
+                googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
             });
 
 
@@ -84,17 +143,28 @@ namespace PowerOfAPI
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Laza API V1");
 
+            });
+
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
             app.UseCors("MyPolicy");
 
 
             app.UseAuthentication();
             app.UseAuthorization();
+
 
 
             app.MapControllers();
