@@ -10,8 +10,12 @@ namespace PowerOf.Core.IUnitOfWork
 {
     public interface IUnitOfWork : IDisposable
     {
-        IGenericRepository<Product> _ProductRepository { get; }
-        Task<int> Complete();
+        IProductRepository _ProductRepository { get; }
+        IServiceRepository _ServiceRepository { get; }
+        IOrderRepository _orderRepository { get; }
+        IInvoiceRepository _invoiceRepository { get; }
+
+        Task<int> CompleteAsync();
 
     }
 }
