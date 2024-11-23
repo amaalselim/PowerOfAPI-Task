@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PowerOf.Application.DTO_s;
-using PowerOf.Core.Entities;
 using PowerOf.Core.IUnitOfWork;
 using System.Security.Claims;
 

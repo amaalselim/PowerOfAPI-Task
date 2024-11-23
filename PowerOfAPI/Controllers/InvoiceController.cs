@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PowerOf.Core.DTO_s;
 using PowerOf.Core.IUnitOfWork;
@@ -9,6 +9,7 @@ namespace PowerOfAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class InvoiceController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

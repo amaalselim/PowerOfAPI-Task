@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PowerOf.Application.DTO_s;
@@ -10,6 +11,7 @@ namespace PowerOfAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class ProductController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PowerOf.Application.DTO_s;
-using PowerOf.Application.IServices;
 using PowerOf.Application.Services;
 
 namespace PowerOfAPI.Controllers
