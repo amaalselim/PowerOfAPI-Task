@@ -20,6 +20,9 @@ namespace PowerOf.Persistence.Data
         public DbSet<User> users { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Service> services { get; set; }
+        public DbSet<Order> orders { get; set; }
+        public DbSet<OrderItem> ordersItem { get; set; }
+        public DbSet<Invoice> invoices { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=PowerOfAPI;Integrated Security=True;Encrypt=True;TrustServerCertificate=True");
