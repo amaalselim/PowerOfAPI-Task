@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PowerOf.Persistence.Data;
 
@@ -11,9 +12,11 @@ using PowerOf.Persistence.Data;
 namespace PowerOf.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123162101_updateorder")]
+    partial class updateorder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,37 +158,6 @@ namespace PowerOf.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("PowerOf.Core.Entities.Invoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InvoiceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Tax")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("invoices");
-                });
-
             modelBuilder.Entity("PowerOf.Core.Entities.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -233,11 +205,16 @@ namespace PowerOf.Persistence.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ServiceId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("ServiceId");
 
                     b.ToTable("ordersItem");
                 });
@@ -437,17 +414,6 @@ namespace PowerOf.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PowerOf.Core.Entities.Invoice", b =>
-                {
-                    b.HasOne("PowerOf.Core.Entities.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("PowerOf.Core.Entities.OrderItem", b =>
                 {
                     b.HasOne("PowerOf.Core.Entities.Order", "Order")
@@ -460,9 +426,15 @@ namespace PowerOf.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId");
 
+                    b.HasOne("PowerOf.Core.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId");
+
                     b.Navigation("Order");
 
                     b.Navigation("Product");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("PowerOf.Core.Entities.Order", b =>
