@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PowerOf.Persistence.Repository
 {
-    public class ProductRepository : IGenericRepository<Product>
+    public class ProductRepository : IProductRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -24,7 +24,7 @@ namespace PowerOf.Persistence.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteEntityAsync(string id)
+        public async Task DeleteEntityAsync(int id)
         {
             var product= await _context.Products.FindAsync(id);
             _context.Products.Remove(product);
@@ -36,7 +36,7 @@ namespace PowerOf.Persistence.Repository
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product?> GetEntityByIdAsync(string id)
+        public async Task<Product?> GetEntityByIdAsync(int id)
         {
            return await _context.Products.FindAsync(id);
         }
@@ -45,6 +45,12 @@ namespace PowerOf.Persistence.Repository
         {
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
+        }
+        public async Task<IEnumerable<Product>> SearchProductAsync(string searchTerm)
+        {
+            var lowersearchterm = searchTerm.ToLower();
+            return await _context.Products
+                .Where(p => p.Name.ToLower().StartsWith(lowersearchterm)).ToListAsync();
         }
     }
 }
