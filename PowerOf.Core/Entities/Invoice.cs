@@ -9,9 +9,11 @@ namespace PowerOf.Core.Entities
     public class Invoice
     {
         public int Id { get; set; }
-        public int OrderId { get; set; }
-        public DateTime IssueDate { get; set; }
+        public string InvoiceNumber { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
         public decimal TotalAmount { get; set; }
-        public string Status { get; set; } // مثل "مدفوعة"، "غير مدفوعة"
+        public decimal Tax { get; set; }
+        public int OrderId { get; set; }
+        public virtual Order? Order { get; set; }
     }
 }

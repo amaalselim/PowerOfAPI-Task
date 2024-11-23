@@ -11,7 +11,8 @@ namespace PowerOf.Core.Entities
     public class User : IdentityUser
     {
         public string FullName { get; set; }
-        public string Address { get; set; }
+        public string? Address { get; set; }
+        public int? VerificationCode { get; set; }
         public Roles Roles {  get; set; }
 
     }
